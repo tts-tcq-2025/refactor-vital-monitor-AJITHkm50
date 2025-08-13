@@ -1,3 +1,5 @@
+#include <gtest/gtest.h>
+#include "./monitor.h"
 #include <iostream>
 #include <cassert>
 #include "VitalsMonitor.h"
@@ -24,3 +26,4 @@ int main() {
     testVitalsOk();
     return 0;
 }
+
