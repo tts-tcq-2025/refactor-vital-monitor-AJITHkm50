@@ -1,38 +1,37 @@
-#include "./monitor.h"
-#include <assert.h>
-#include <thread>
-#include <chrono>
-#include <iostream>
-using std::cout, std::flush, std::this_thread::sleep_for, std::chrono::seconds;
+#include "VitalsMonitor.h"
 
+// Constants for acceptable ranges
+const float TEMP_MIN = 36.1f; // Minimum normal body temperature in Celsius
+const float TEMP_MAX = 37.2f; // Maximum normal body temperature in Celsius
+const float PULSE_MIN = 60.0f; // Minimum normal pulse rate
+const float PULSE_MAX = 100.0f; // Maximum normal pulse rate
+const float SPO2_MIN = 95.0f; // Minimum normal SpO2 percentage
+
+// Function to check if temperature is within normal range
+bool isTemperatureOk(float temperature) {
+    return temperature >= TEMP_MIN && temperature <= TEMP_MAX;
+}
+
+// Function to check if pulse rate is within normal range
+bool isPulseRateOk(float pulseRate) {
+    return pulseRate >= PULSE_MIN && pulseRate <= PULSE_MAX;
+}
+
+// Function to check if SpO2 is within normal range
+bool isSpo2Ok(float spo2) {
+    return spo2 >= SPO2_MIN;
+}
+
+// Main function to check if all vitals are okay
 int vitalsOk(float temperature, float pulseRate, float spo2) {
-  if (temperature > 102 || temperature < 95) {
-    cout << "Temperature is critical!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
+    if (!isTemperatureOk(temperature)) {
+        return -1; // Temperature out of range
     }
-    return 0;
-  } else if (pulseRate < 60 || pulseRate > 100) {
-    cout << "Pulse Rate is out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
+    if (!isPulseRateOk(pulseRate)) {
+        return -2; // Pulse rate out of range
     }
-    return 0;
-  } else if (spo2 < 90) {
-    cout << "Oxygen Saturation out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
+    if (!isSpo2Ok(spo2)) {
+        return -3; // SpO2 out of range
     }
-    return 0;
-  }
-  return 1;
+    return 0; // All vitals are okay
 }
