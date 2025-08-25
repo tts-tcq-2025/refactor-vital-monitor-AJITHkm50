@@ -7,36 +7,27 @@ const float PULSE_MIN = 60.0f; // Minimum normal pulse rate
 const float PULSE_MAX = 100.0f; // Maximum normal pulse rate
 const float SPO2_MIN = 95.0f; // Minimum normal SpO2 percentage
 
-// Function to check if temperature is within normal range
-bool isTemperatureOk(float temperature) {
-    return temperature >= TEMP_MIN && temperature <= TEMP_MAX;
-}
-
-// Function to check if pulse rate is within normal range
-bool isPulseRateOk(float pulseRate) {
-    return pulseRate >= PULSE_MIN && pulseRate <= PULSE_MAX;
-}
-
-// Function to check if SpO2 is within normal range
-bool isSpo2Ok(float spo2) {
-    return spo2 >= SPO2_MIN;
-}
-
-// Function to evaluate all vitals and return the status
-int evaluateVitals(float temperature, float pulseRate, float spo2) {
-    if (!isTemperatureOk(temperature)) {
-        return -1; // Temperature out of range
-    }
-    if (!isPulseRateOk(pulseRate)) {
-        return -2; // Pulse rate out of range
-    }
-    if (!isSpo2Ok(spo2)) {
-        return -3; // SpO2 out of range
-    }
-    return 0; // All vitals are okay
-}
-
-// Main function to check if all vitals are okay
+// Function to check if all vitals are okay
 int vitalsOk(float temperature, float pulseRate, float spo2) {
-    return evaluateVitals(temperature, pulseRate, spo2);
+    // Initialize status to indicate all vitals are okay
+    int status = 0; // 0 means all vitals are okay
+
+    // Check if any vital sign is out of range
+    if ((temperature < TEMP_MIN || temperature > TEMP_MAX) ||
+        (pulseRate < PULSE_MIN || pulseRate > PULSE_MAX) ||
+        (spo2 < SPO2_MIN)) {
+        
+        // Determine which vital sign is out of range
+        if (temperature < TEMP_MIN || temperature > TEMP_MAX) {
+            return -1; // Temperature out of range
+        }
+        if (pulseRate < PULSE_MIN || pulseRate > PULSE_MAX) {
+            return -2; // Pulse rate out of range
+        }
+        if (spo2 < SPO2_MIN) {
+            return -3; // SpO2 out of range
+        }
+    }
+    
+    return status; // All vitals are okay
 }
