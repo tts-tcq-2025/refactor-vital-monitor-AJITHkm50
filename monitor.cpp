@@ -55,7 +55,7 @@ int checkVitalSigns(float temperature, float pulseRate, float spo2) {
 
     if (it != std::end(vitalChecks)) {
         displayWarningMessage(it->message);
-        return 0; // Indicates an issue with vital signs
+        return 0;  //  Indicates an issue with vital signs
     }
-    return 1; // All vitals are okay
+    return 1;  //  All vitals are okay
 }
