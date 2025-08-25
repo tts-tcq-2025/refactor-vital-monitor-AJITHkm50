@@ -23,9 +23,9 @@ bool isLowSpo2(float currentSpo2) {
 
 // Function to blink a warning message
 void blinkWarningMessage(const char* warningMessage) {
-    cout << warningMessage << '\n';  
-    sleep_for(seconds(2));            
-    cout << "\r  \r" << flush;  
+    cout << warningMessage << '\n';
+    sleep_for(seconds(2));
+    cout << "\r  \r" << flush;
 }
 
 // Function to check if all vitals are okay
