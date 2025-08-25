@@ -44,7 +44,9 @@ void blinkWarningMessage(const char* message) {
 
 // Main function to check if all vitals are okay
 int vitalsOk(float temperature, float pulseRate, float spo2) {
-    // Check all vitals in a single decision point
+    int status = 0; // 0 means all vitals are okay
+
+    // Check each vital sign and blink warning if necessary
     if (isTemperatureCritical(temperature)) {
         blinkWarningMessage("Temperature is critical!");
         return -1; // Temperature out of range
@@ -57,6 +59,6 @@ int vitalsOk(float temperature, float pulseRate, float spo2) {
         blinkWarningMessage("Oxygen Saturation out of range!");
         return -3; // SpO2 out of range
     }
-    
-    return 0; // All vitals are okay
+
+    return status; // All vitals are okay
 }
