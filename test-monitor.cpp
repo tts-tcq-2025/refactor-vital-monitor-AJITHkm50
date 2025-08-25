@@ -4,7 +4,7 @@
 
 void testVitalsOk() {
     // Test normal values
-    assert(vitalsOk(36.5f, 75.0f, 97.0f) == 0); // All vitals okay
+    assert(vitalsOk(36.5f, 75.0f, 97.0f) == 0);  // All vitals okay
 
     // Test temperature out of range
     assert(vitalsOk(35.0f, 75.0f, 97.0f) == -1); // Low temperature
@@ -17,7 +17,7 @@ void testVitalsOk() {
     // Test SpO2 out of range
     assert(vitalsOk(36.5f, 75.0f, 94.0f) == -3); // Low SpO2
 
-    std::cout << "All vitals tests passed!" << std::endl;
+    std::cout << "All vitals tests passed!" << std::endl; // Use std::endl for flushing
 }
 
 int main() {
