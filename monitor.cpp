@@ -34,7 +34,7 @@ void displayWarningMessage(const char* warningMessage) {
 }
 
 // Function to check if all vitals are okay
-int vitalsOk(float temperature, float pulseRate, float spo2) {
+int checkVitalSigns(float temperature, float pulseRate, float spo2) {
     struct VitalCheck {
         bool (*checkFunction)(float);
         float value;
