@@ -1,23 +1,29 @@
-#include "monitor.h"
+#include "./monitor.h"
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <algorithm>  // for std::find_if
 
-using std::cout;
-using std::flush;
-using std::this_thread::sleep_for;
-using std::chrono::seconds;
+using std::cout, std::flush, std::this_thread::sleep_for, std::chrono::seconds;
 
-// Constants for acceptable ranges
-const float TEMP_MIN = 95.0f; // Minimum normal body temperature in Celsius
-const float TEMP_MAX = 102.0f; // Maximum normal body temperature in Celsius
-const float PULSE_MIN = 60.0f; // Minimum normal pulse rate
-const float PULSE_MAX = 100.0f; // Maximum normal pulse rate
-const float SPO2_MIN = 90.0f; // Minimum normal SpO2 percentage
+// Function to check if the temperature is critical
+bool isCriticalTemperature(float currentTemperature) {
+    return currentTemperature > 102.0f || currentTemperature < 95.0f;
+}
+
+// Function to check if the pulse rate is out of range
+bool isPulseRateOutOfRange(float currentPulseRate) {
+    return currentPulseRate < 60.0f || currentPulseRate > 100.0f;
+}
+
+// Function to check if SpO2 is low
+bool isLowSpo2(float currentSpo2) {
+    return currentSpo2 < 90.0f;
+}
 
 // Function to blink a warning message
-void blinkWarningMessage(const char* message) {
-    cout << message << '\n';
+void displayWarningMessage(const char* warningMessage) {
+    cout << warningMessage << '\n';
     for (int i = 0; i < 6; i++) {
         cout << "\r* " << flush;
         sleep_for(seconds(1));
@@ -29,22 +35,27 @@ void blinkWarningMessage(const char* message) {
 
 // Function to check if all vitals are okay
 int vitalsOk(float temperature, float pulseRate, float spo2) {
-    // Initialize status to indicate all vitals are okay
-    int status = 0; // 0 means all vitals are okay
+    struct VitalCheck {
+        bool (*checkFunction)(float);
+        float value;
+        const char* message;
+    };
 
-    // Check if any vital sign is out of range
-    if (temperature < TEMP_MIN || temperature > TEMP_MAX) {
-        blinkWarningMessage("Temperature is critical!");
-        return -1; // Temperature out of range
-    }
-    if (pulseRate < PULSE_MIN || pulseRate > PULSE_MAX) {
-        blinkWarningMessage("Pulse Rate is out of range!");
-        return -2; // Pulse rate out of range
-    }
-    if (spo2 < SPO2_MIN) {
-        blinkWarningMessage("Oxygen Saturation out of range!");
-        return -3; // SpO2 out of range
-    }
+    const VitalCheck vitalChecks[] = {
+        { isCriticalTemperature, temperature, "Temperature is critical!" },
+        { isPulseRateOutOfRange, pulseRate, "Pulse Rate is out of range!" },
+        { isLowSpo2, spo2, "Oxygen Saturation out of range!" }
+    };
 
-    return status; // All vitals are okay
+    // Use std::find_if to check for any vital sign issues
+    auto it = std::find_if(std::begin(vitalChecks), std::end(vitalChecks),
+                           [](const VitalCheck& check) {
+                               return check.checkFunction(check.value);
+                           });
+
+    if (it != std::end(vitalChecks)) {
+        displayWarningMessage(it->message);
+        return 0; // Indicates an issue with vital signs
+    }
+    return 1; // All vitals are okay
 }
