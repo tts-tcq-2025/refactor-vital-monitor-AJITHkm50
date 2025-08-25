@@ -13,8 +13,11 @@ void testVitalsOk() {
 }
 
 int main() {
-    testVitalsOk();
+    std::cout << "Testing vitalsOk with normal values..." << std::endl;
+    int result = vitalsOk(36.5f, 75.0f, 97.0f);
+    std::cout << "Result: " << result << std::endl;  // Should print 1
     return 0;
 }
+
 
 
