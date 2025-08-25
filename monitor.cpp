@@ -1,38 +1,56 @@
 #include "./monitor.h"
-#include <assert.h>
+#include <iostream>
 #include <thread>
 #include <chrono>
-#include <iostream>
+#include <algorithm>  // for std::find_if
+
 using std::cout, std::flush, std::this_thread::sleep_for, std::chrono::seconds;
 
+// Function to check if the temperature is critical
+bool isCriticalTemperature(float currentTemperature) {
+    return currentTemperature > 102.0f || currentTemperature < 95.0f;
+}
+
+// Function to check if the pulse rate is out of range
+bool isPulseRateOutOfRange(float currentPulseRate) {
+    return currentPulseRate < 60.0f || currentPulseRate > 100.0f;
+}
+
+// Function to check if SpO2 is low
+bool isLowSpo2(float currentSpo2) {
+    return currentSpo2 < 90.0f;
+}
+
+// Function to blink a warning message
+void blinkWarningMessage(const char* warningMessage) {
+    cout << warningMessage << '\n';
+    sleep_for(seconds(2));
+    cout << "\r  \r" << flush;
+}
+
+// Function to check if all vitals are okay
 int vitalsOk(float temperature, float pulseRate, float spo2) {
-  if (temperature > 102 || temperature < 95) {
-    cout << "Temperature is critical!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
+    struct VitalCheck {
+        bool (*checkFunction)(float);
+        float value;
+        const char* message;
+    };
+
+    const VitalCheck vitalChecks[] = {
+        { isCriticalTemperature, temperature, "Temperature is critical!" },
+        { isPulseRateOutOfRange, pulseRate, "Pulse Rate is out of range!" },
+        { isLowSpo2, spo2, "Oxygen Saturation out of range!" }
+    };
+
+    // Use std::find_if to check for any vital sign issues
+    auto it = std::find_if(std::begin(vitalChecks), std::end(vitalChecks),
+                           [](const VitalCheck& check) {
+                               return check.checkFunction(check.value);
+                           });
+
+    if (it != std::end(vitalChecks)) {
+        blinkWarningMessage(it->message);
+        return 0;  //  Indicates an issue with vital signs
     }
-    return 0;
-  } else if (pulseRate < 60 || pulseRate > 100) {
-    cout << "Pulse Rate is out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
-    }
-    return 0;
-  } else if (spo2 < 90) {
-    cout << "Oxygen Saturation out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
-    }
-    return 0;
-  }
-  return 1;
+    return 1;  //  All vitals are okay
 }
