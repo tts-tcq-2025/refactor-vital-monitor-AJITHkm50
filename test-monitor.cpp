@@ -30,9 +30,3 @@ int main() {
     testVitalsOk();
     return 0;
 }
-
-
-
-
-
-
