@@ -36,7 +36,7 @@ VitalResult checkSpo2(float s) {
     return {true, ""};
 }
 
-} // namespace
+
 
 std::vector<std::string> getVitalWarnings(float temperature, float pulseRate, float spo2) {
     std::vector<std::string> warnings;
