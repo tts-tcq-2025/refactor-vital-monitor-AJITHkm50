@@ -34,7 +34,6 @@ VitalResult checkSpo2(float s) {
     if (s < 90.0f)
         return {false, "Oxygen Saturation is too low!"};
     return {true, ""};
-}
 } 
 
 std::vector<std::string> getVitalWarnings(float temperature, float pulseRate, float spo2) {
