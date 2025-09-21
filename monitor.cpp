@@ -1,38 +1,78 @@
+
 #include "./monitor.h"
-#include <assert.h>
+#include <iostream>
 #include <thread>
 #include <chrono>
-#include <iostream>
+#include <vector>
+#include <string>
+
 using std::cout, std::flush, std::this_thread::sleep_for, std::chrono::seconds;
 
+namespace {
+struct VitalResult {
+    bool ok;
+    std::string message;
+};
+
+VitalResult checkTemperature(float t) {
+    if (t > 102.0f)
+        return {false, "Temperature is too high!"};
+    if (t < 95.0f)
+        return {false, "Temperature is too low!"};
+    return {true, ""};
+}
+
+VitalResult checkPulse(float p) {
+    if (p < 60.0f)
+        return {false, "Pulse Rate is too low!"};
+    if (p > 100.0f)
+        return {false, "Pulse Rate is too high!"};
+    return {true, ""};
+}
+
+VitalResult checkSpo2(float s) {
+    if (s < 90.0f)
+        return {false, "Oxygen Saturation is too low!"};
+    return {true, ""};
+}
+}  //  namespace
+
+std::vector<std::string> getVitalWarnings(float temperature, float pulseRate, float spo2) {
+    std::vector<std::string> warnings;
+    struct Check {
+        VitalResult (*func)(float);
+        float value;
+    };
+    std::vector<Check> checks = {
+        {checkTemperature, temperature},
+        {checkPulse, pulseRate},
+        {checkSpo2, spo2}
+    };
+    for (const auto& c : checks) {
+        VitalResult res = c.func(c.value);
+        if (!res.ok) warnings.push_back(res.message);
+    }
+    return warnings;
+}
+
+
+void blinkWarningMessage(const std::string& warningMessage, bool testMode = false) {
+    if (testMode) return;
+    cout << warningMessage << '\n';
+    sleep_for(seconds(2));
+    cout << "\r  \r" << flush;
+}
+
+int vitalsOk(float temperature, float pulseRate, float spo2, bool testMode) {
+    auto warnings = getVitalWarnings(temperature, pulseRate, spo2);
+    if (!warnings.empty()) {
+        blinkWarningMessage(warnings[0], testMode);  //  Only blink first warning for now
+        return 0;
+    }
+    return 1;
+}
+
+// Overload for legacy usage (non-test)
 int vitalsOk(float temperature, float pulseRate, float spo2) {
-  if (temperature > 102 || temperature < 95) {
-    cout << "Temperature is critical!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
-    }
-    return 0;
-  } else if (pulseRate < 60 || pulseRate > 100) {
-    cout << "Pulse Rate is out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
-    }
-    return 0;
-  } else if (spo2 < 90) {
-    cout << "Oxygen Saturation out of range!\n";
-    for (int i = 0; i < 6; i++) {
-      cout << "\r* " << flush;
-      sleep_for(seconds(1));
-      cout << "\r *" << flush;
-      sleep_for(seconds(1));
-    }
-    return 0;
-  }
-  return 1;
+    return vitalsOk(temperature, pulseRate, spo2, false);
 }
