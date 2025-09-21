@@ -55,17 +55,24 @@ std::vector<std::string> getVitalWarnings(float temperature, float pulseRate, fl
     return warnings;
 }
 
-void blinkWarningMessage(const std::string& warningMessage) {
+
+void blinkWarningMessage(const std::string& warningMessage, bool testMode = false) {
+    if (testMode) return;
     cout << warningMessage << '\n';
     sleep_for(seconds(2));
     cout << "\r  \r" << flush;
 }
 
-int vitalsOk(float temperature, float pulseRate, float spo2) {
+int vitalsOk(float temperature, float pulseRate, float spo2, bool testMode) {
     auto warnings = getVitalWarnings(temperature, pulseRate, spo2);
     if (!warnings.empty()) {
-        blinkWarningMessage(warnings[0]);  //  Only blink first warning for now
+        blinkWarningMessage(warnings[0], testMode);  //  Only blink first warning for now
         return 0;
     }
     return 1;
+}
+
+// Overload for legacy usage (non-test)
+int vitalsOk(float temperature, float pulseRate, float spo2) {
+    return vitalsOk(temperature, pulseRate, spo2, false);
 }
